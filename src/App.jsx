@@ -1,25 +1,17 @@
-import './App.css';
-import { Navbar } from './components/Navbar';
-import { HeroSection } from './sectioms/HeroSEction.jsx';
-import { JobCartSection } from './sectioms/JobCartSection';
-import jobData from './JobsNoob.js'
+import React from 'react';
+import HeroSection from './sectioms/HeroSEction';
+import { Navbar } from "./components/Navbar" 
 
 function App() {
-
   return (
-  <div>
-    <Navbar />
+    <div className="">
 
-    <main>
+      {/* Navigation */}
+      <Navbar />
+      {/* Hero Section + Search Bar */}
       <HeroSection />
-      {jobData.map((job) => (
-        <JobCartSection key={job.id} {...job} />
-      ))}
-      
-    </main>
-
-  </div>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
