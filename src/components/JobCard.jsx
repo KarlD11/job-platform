@@ -4,6 +4,7 @@ import useFetch from '@/hooks/useFetch.jsx';
 import { savedJobs } from "../api/api-jobs.js";
 import { UserAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
+import { ApplyJobModal } from './ApplyJob';
 
 // JobCard displays individual job opportunities with modern tech-focused design
 // Includes job title, company, location, and save/apply functionality
@@ -15,6 +16,7 @@ const JobCard = ({
  }) => { 
     // State management for saved job status
     const [ saved, setSaved ] = useState(savedInit);
+    const [ showApplyModal, setShowApplyModal ] = useState(false);
     const { session } = UserAuth();
 
     // Custom hook for API calls to save/unsave jobs
@@ -116,7 +118,10 @@ const JobCard = ({
             </Link>
 
             {/* Apply Button - Submit application for job */}
-            <button className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-purple-500/50 text-slate-200 font-semibold rounded-lg transition-all duration-300 text-sm">
+            <button 
+              onClick={() => setShowApplyModal(true)}
+              className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-purple-500/50 text-slate-200 font-semibold rounded-lg transition-all duration-300 text-sm"
+            >
               Apply
             </button>
 
@@ -135,6 +140,16 @@ const JobCard = ({
             )}
           </div>
         </div>
+
+        {/* Apply Job Modal */}
+        <ApplyJobModal
+          user={session?.user}
+          job={job}
+          fetchJob={onJobSaved}
+          applied={false}
+          isOpen={showApplyModal}
+          onClose={() => setShowApplyModal(false)}
+        />
       </div>
     );
 }
