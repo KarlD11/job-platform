@@ -1,18 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserAuth } from '@/context/AuthContext';
 import useFetch from '@/hooks/useFetch.jsx';
 import { getSingleJob } from '../api/api-jobs.js';
 import Navbar from '@/components/Navbar';
-import { ApplyJobDrawer } from '../components/ApplyJob';
+import { ApplyJobModal } from '@/components/ApplyJob';
 import { ArrowLeft, Briefcase, MapPin, DollarSign, Clock } from 'lucide-react';
 
-// SingleJob displays the full details of a job with back navigation to listings
 export default function SingleJob() {
   const { session } = UserAuth();
   const token = session?.access_token;
   const { job_id } = useParams();
   const navigate = useNavigate();
+  const [showApplyModal, setShowApplyModal] = useState(false);
 
   // Fetch single job data from API
   const {
@@ -197,17 +197,30 @@ export default function SingleJob() {
               <ArrowLeft size={20} />
               Back to Job Listings
             </button>
-            <div className="flex-1">
-              <ApplyJobDrawer
-                user={session?.user}
-                job={job}
-                fetchJob={() => fnJob(token, { job_id })}
-                applied={hasApplied}
-              />
-            </div>
+            <button
+              onClick={() => setShowApplyModal(true)}
+              disabled={hasApplied}
+              className={`flex-1 px-6 py-4 font-bold rounded-lg transition-all shadow-lg ${
+                hasApplied
+                  ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-500/20'
+              }`}
+            >
+              {hasApplied ? 'Already Applied' : 'Apply Now'}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Apply Job Modal */}
+      <ApplyJobModal
+        user={session?.user}
+        job={job}
+        fetchJob={() => fnJob(token, { job_id })}
+        applied={hasApplied}
+        isOpen={showApplyModal}
+        onClose={() => setShowApplyModal(false)}
+      />
     </section>
   );
 }

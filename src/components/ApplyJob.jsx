@@ -1,53 +1,18 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { X, Upload } from 'lucide-react';
 import useFetch from "@/hooks/useFetch.jsx";
 import { applyToJob } from "@/api/api-applications";
 import { BarLoader } from "react-spinners";
 
-const schema = z.object({
-  experience: z
-    .number()
-    .min(0, { message: "Experience must be at least 0" })
-    .int(),
-  skills: z.string().min(1, { message: "Skills are required" }),
-  education: z.enum(["Intermediate", "Graduate", "Post Graduate"], {
-    message: "Education is required",
-  }),
-  resume: z
-    .any()
-    .refine(
-      (file) =>
-        file[0] &&
-        (file[0].type === "application/pdf" ||
-          file[0].type === "application/msword"),
-      { message: "Only PDF or Word documents are allowed" }
-    ),
-});
-
-export function ApplyJobDrawer({ user, job, fetchJob, applied = false }) {
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: zodResolver(schema),
+export function ApplyJobModal({ user, job, fetchJob, applied = false, isOpen, onClose }) {
+  const [formData, setFormData] = useState({
+    firstName: user?.user_metadata?.full_name?.split(' ')[0] || '',
+    lastName: user?.user_metadata?.full_name?.split(' ')[1] || '',
+    email: user?.email || '',
+    resume: null
   });
 
   const {
@@ -56,125 +21,160 @@ export function ApplyJobDrawer({ user, job, fetchJob, applied = false }) {
     fn: fnApply,
   } = useFetch(applyToJob);
 
-  const onSubmit = (data) => {
-    fnApply({
-      ...data,
-      job_id: job.id,
-      candidate_id: user.id,
-      name: user.fullName,
-      status: "applied",
-      resume: data.resume[0],
-    }).then(() => {
-      fetchJob();
-      reset();
-    });
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'resume' && files) {
+      setFormData(prev => ({ ...prev, resume: files[0] }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
-  return (
-    <Drawer open={applied ? false : undefined}>
-      <DrawerTrigger asChild>
-        <Button
-          size="lg"
-          variant={job?.isOpen && !applied ? "blue" : "destructive"}
-          disabled={!job?.isOpen || applied}
-        >
-          {job?.isOpen ? (applied ? "Applied" : "Apply") : "Hiring Closed"}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>
-            Apply for {job?.title} at {job?.company?.name}
-          </DrawerTitle>
-          <DrawerDescription>Please Fill the form below</DrawerDescription>
-        </DrawerHeader>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 p-4 pb-0"
-        >
-          <Input
-            type="number"
-            placeholder="Years of Experience"
-            className="flex-1"
-            {...register("experience", {
-              valueAsNumber: true,
-            })}
-          />
-          {errors.experience && (
-            <p className="text-red-500">{errors.experience.message}</p>
-          )}
-          <Input
-            type="text"
-            placeholder="Skills (Comma Separated)"
-            className="flex-1"
-            {...register("skills")}
-          />
-          {errors.skills && (
-            <p className="text-red-500">{errors.skills.message}</p>
-          )}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Education Level</label>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="intermediate"
-                  value="Intermediate"
-                  {...register("education")}
-                  className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300"
-                />
-                <label htmlFor="intermediate" className="text-sm">Intermediate</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="graduate"
-                  value="Graduate"
-                  {...register("education")}
-                  className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300"
-                />
-                <label htmlFor="graduate" className="text-sm">Graduate</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="post-graduate"
-                  value="Post Graduate"
-                  {...register("education")}
-                  className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300"
-                />
-                <label htmlFor="post-graduate" className="text-sm">Post Graduate</label>
-              </div>
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.resume) {
+      alert('Please fill in all fields and upload your resume.');
+      return;
+    }
+
+    try {
+      await fnApply({
+        ...formData,
+        job_id: job.id,
+        candidate_id: user.id,
+        name: `${formData.firstName} ${formData.lastName}`,
+        status: "applied",
+        resume: formData.resume,
+      });
+
+      fetchJob();
+      onClose();
+      setFormData({
+        firstName: user?.user_metadata?.full_name?.split(' ')[0] || '',
+        lastName: user?.user_metadata?.full_name?.split(' ')[1] || '',
+        email: user?.email || '',
+        resume: null
+      });
+    } catch (error) {
+      console.error('Application submission failed:', error);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <h2 className="text-xl font-bold text-white">Apply for {job?.title}</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            <X className="h-5 w-5 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                First Name
+              </label>
+              <Input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                className="bg-slate-800 border-slate-600 text-white"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Last Name
+              </label>
+              <Input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                className="bg-slate-800 border-slate-600 text-white"
+                required
+              />
             </div>
           </div>
-          {errors.education && (
-            <p className="text-red-500">{errors.education.message}</p>
-          )}
-          <Input
-            type="file"
-            accept=".pdf, .doc, .docx"
-            className="flex-1 file:text-gray-500"
-            {...register("resume")}
-          />
-          {errors.resume && (
-            <p className="text-red-500">{errors.resume.message}</p>
-          )}
-          {errorApply?.message && (
-            <p className="text-red-500">{errorApply?.message}</p>
-          )}
-          {loadingApply && <BarLoader width={"100%"} color="#36d7b7" />}
-          <Button type="submit" variant="blue" size="lg">
-            Apply
-          </Button>
-        </form>
 
-        <DrawerFooter>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Email Address
+            </label>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="bg-slate-800 border-slate-600 text-white"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Resume/CV
+            </label>
+            <div className="relative">
+              <Input
+                type="file"
+                name="resume"
+                accept=".pdf,.doc,.docx"
+                onChange={handleInputChange}
+                className="bg-slate-800 border-slate-600 text-white file:bg-cyan-600 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-1 file:mr-3 file:hover:bg-cyan-500"
+                required
+              />
+              <Upload className="absolute right-3 top-3 h-5 w-5 text-slate-400 pointer-events-none" />
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              Accepted formats: PDF, DOC, DOCX
+            </p>
+          </div>
+
+          {errorApply?.message && (
+            <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              {errorApply.message}
+            </div>
+          )}
+
+          {loadingApply && (
+            <div className="flex justify-center py-4">
+              <BarLoader width={200} color="#06b6d4" />
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-800"
+              disabled={loadingApply}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white"
+              disabled={loadingApply}
+            >
+              {loadingApply ? 'Submitting...' : 'Submit Application'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
