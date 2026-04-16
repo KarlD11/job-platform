@@ -44,7 +44,7 @@ export default function JobSection() {
 
   if (!token) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <section>
         <Navbar />
         <div className="min-h-screen flex flex-col items-center justify-center text-center pt-24">
           <p className="text-xl text-slate-300">Please sign in to view job listings.</p>
@@ -54,7 +54,7 @@ export default function JobSection() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <section>
       <Navbar />
 
       <div className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8">

@@ -9,7 +9,7 @@ export default function LandingSection() {
     const jobsLink = session?.user ? "/jobs" : "/signin";
 
     return (
-        <section className="bg-gradient-to-br from-slate-950 via-blue-950/30 to-purple-950/40 relative overflow-hidden min-h-screen">
+        <section className="relative overflow-hidden min-h-screen">
             {/* Animated Background Gradient Orbs */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-600/20 to-blue-600/10 rounded-full blur-3xl animate-pulse"></div>

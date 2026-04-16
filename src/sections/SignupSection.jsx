@@ -40,7 +40,7 @@ export default function SignupSection() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950">
+    <section>
       <LandingNavbar />
 
       <div className="min-h-screen flex items-center justify-center px-4 pt-28">

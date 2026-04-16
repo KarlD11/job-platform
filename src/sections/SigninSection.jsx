@@ -39,7 +39,7 @@ export default function SignInSection() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/30 to-purple-950/40">
+    <section>
       <LandingNavbar />
 
       <div className="min-h-screen flex items-center justify-center px-4 pt-28">
