@@ -4,6 +4,7 @@ import { UserAuth } from '@/context/AuthContext';
 import useFetch from '@/hooks/useFetch.jsx';
 import { getSingleJob } from '../api/api-jobs.js';
 import Navbar from '@/components/Navbar';
+import { ApplyJobDrawer } from '../components/ApplyJob';
 import { ArrowLeft, Briefcase, MapPin, DollarSign, Clock } from 'lucide-react';
 
 // SingleJob displays the full details of a job with back navigation to listings
@@ -26,6 +27,9 @@ export default function SingleJob() {
       fnJob(token, { job_id });
     }
   }, [job_id, token]); // Removed fnJob from dependencies
+
+  // Check if user has already applied to this job
+  const hasApplied = job?.applications?.some(app => app.candidate_id === session?.user?.id);
 
   // Show sign in prompt if user not authenticated
   if (!token) {
@@ -193,9 +197,14 @@ export default function SingleJob() {
               <ArrowLeft size={20} />
               Back to Job Listings
             </button>
-            <button className="flex-1 px-6 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/20">
-              Apply Now
-            </button>
+            <div className="flex-1">
+              <ApplyJobDrawer
+                user={session?.user}
+                job={job}
+                fetchJob={() => fnJob(token, { job_id })}
+                applied={hasApplied}
+              />
+            </div>
           </div>
         </div>
       </div>
