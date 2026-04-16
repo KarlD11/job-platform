@@ -21,6 +21,24 @@ export async function getJobs(token, { location, company_id, searchQuery, id, sa
   return data;
 }
 
+// Function to get a single job by job_id with full details
+export async function getSingleJob(token, { job_id }) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*, company:companies(name)')
+    .eq('id', job_id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching job details:', error);
+    return null;
+  }
+
+  return data;
+}
+
 // Function to get saved jobs for a user
 export async function getSavedJobs(token, { user_id }) {
   const supabase = await supabaseClient(token);
@@ -106,6 +124,8 @@ export async function postJob(token, jobData) {
 
   return data;
 }
+
+
 
 
 

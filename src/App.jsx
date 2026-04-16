@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import PrivateRoute from "./routes/PrivateRoute";
 
 import JobSection from "./sections/JobSection"; 
+import SingleJob from "./sections/SingleJob";
 import MyJobSection from "./sections/MyJobSection";
 import PostJobSection from "./sections/PostJobSection";
 import SaveJobSection from "./sections/SaveJobSection";
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       // Private routes
       { path: "/onboarding", element: <PrivateRoute><OnboardingSection /></PrivateRoute> },
       { path: "/jobs", element: <PrivateRoute><JobSection /></PrivateRoute> },
+      { path: "/job/:job_id", element: <PrivateRoute><SingleJob /></PrivateRoute> },
       { path: "/post-job", element: <PrivateRoute><PostJobSection /></PrivateRoute> },
       { path: "/saved-job", element: <PrivateRoute><SaveJobSection /></PrivateRoute> },
       { path: "/my-jobs", element: <PrivateRoute><MyJobSection /></PrivateRoute> },
