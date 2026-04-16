@@ -4,13 +4,12 @@ import { ThemeProvider } from "@/components/theme-provider"
 
 import PrivateRoute from "./routes/PrivateRoute";
 
-import HeroSection from "./sections/HeroSection"; 
-import JobCartSection from "./components/JobCard";
+import JobSection from "./sections/JobSection"; 
 import MyJobSection from "./sections/MyJobSection";
 import PostJobSection from "./sections/PostJobSection";
 import SaveJobSection from "./sections/SaveJobSection";
+import ApplicationsSection from "./sections/ApplicationsSection";
 import OnboardingSection from "./sections/OnboardingSection";
-import JobSection from "./sections/JobSection"; 
 import LandingSection from "./sections/LandingSection";
 import ProfileSection from "./sections/ProfileSection";
 import SignupSection from "./sections/SignupSection";
@@ -29,12 +28,10 @@ const router = createBrowserRouter([
       // Private routes
       { path: "/onboarding", element: <PrivateRoute><OnboardingSection /></PrivateRoute> },
       { path: "/jobs", element: <PrivateRoute><JobSection /></PrivateRoute> },
-      { path: "/job/:id", element: <PrivateRoute><JobSection /></PrivateRoute> },
       { path: "/post-job", element: <PrivateRoute><PostJobSection /></PrivateRoute> },
       { path: "/saved-job", element: <PrivateRoute><SaveJobSection /></PrivateRoute> },
       { path: "/my-jobs", element: <PrivateRoute><MyJobSection /></PrivateRoute> },
       { path: "/profile", element: <PrivateRoute><ProfileSection /></PrivateRoute> },
-      { path: "/home", element: <PrivateRoute><HeroSection /></PrivateRoute> },
     ],
   },
 ]);

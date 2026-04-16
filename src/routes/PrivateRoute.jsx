@@ -1,14 +1,18 @@
 import { UserAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-
 export default function PrivateRoute({ children }) {
-    const { session } = UserAuth();
+    const { session, loading } = UserAuth();
 
-    if(!session) {
-        return <Navigate to="/signup" />
+    if (loading) {
+        return null;
     }
-    return children;
 
+    if (!session) {
+        return <Navigate to="/signup" replace />;
+    }
+
+    return children;
 }
+
 

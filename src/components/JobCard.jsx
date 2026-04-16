@@ -1,116 +1,142 @@
-import { MapPin, MapPinIcon, Trash2Icon, Bookmark } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
+import { MapPin, Trash2, Bookmark, Briefcase, DollarSign, Clock } from "lucide-react";
 import { Link } from 'react-router-dom'
 import useFetch from '@/hooks/useFetch.jsx';
 import { savedJobs } from "../api/api-jobs.js";
 import { UserAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
-
+// JobCard displays individual job opportunities with modern tech-focused design
+// Includes job title, company, location, and save/apply functionality
 const JobCard = ({ 
-    
     job,
     isMyJob = false,
-    saveInit = false,
+    savedInit = false,
     onJobSaved = () => {},
  }) => { 
-    const [ saved, setSaved ] = useState(saveInit);
+    // State management for saved job status
+    const [ saved, setSaved ] = useState(savedInit);
+    const { session } = UserAuth();
 
+    // Custom hook for API calls to save/unsave jobs
     const {
     fn: fnSavedJob,
-    data: savedJob,
     loading: loadingSaveJob,
-    } = useFetch(savedJobs);
+    } = useFetch((token, _, saveRequest) => savedJobs(token, saveRequest));
 
-  const { session } = UserAuth();
-
-  const handleSavedJob = async () => {
+  // Toggle save state for job bookmarking functionality
+  const handleToggleSave = async () => {
     await fnSavedJob({
-        user_id: session.user.id,
-        job_id: job.id,
+      alreadySaved: saved,
+      user_id: session.user.id,
+      job_id: job.id,
     });
+    setSaved(!saved);
     onJobSaved();
   };
 
+  // Update saved state when initial prop changes
   useEffect(() => {
-    if (savedJob !== undefined) {
-        setSaved(!savedJob?.length > 0);
-    }
-  }, [savedJob]);
+    setSaved(savedInit);
+  }, [savedInit]);
 
-  const handleSaveJob = async () => {
-    await fnSavedJob({
-        user_id: session.user.id,
-        job_id: job.id,
-    })
-    onJobSaved();
-  }
+    return (
+      // Outer container with dark gradient background and modern styling
+      <div className="group bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 flex flex-col">
+        
+        {/* Header section with color-coded accent bar */}
+        <div className="h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500"></div>
 
+        {/* Card content wrapper */}
+        <div className="p-6 flex flex-col flex-1">
+          
+          {/* Top section: Job title and delete button */}
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1 pr-4">
+              {/* Job title with gradient text */}
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 mb-1 group-hover:from-cyan-300 group-hover:to-blue-300 transition-all">
+                {job.title}
+              </h2>
+              {/* Company name in slate */}
+              {job.company && <p className="text-sm text-slate-300 font-medium">{job.company.name}</p>}
+            </div>
 
-
-    return <Card>
-            <CardHeader>
-                <CardTitle className='flex justify-between font-bold'>
-                    {job.title}
-
-                {!isMyJob && 
-                    <Trash2Icon 
-                    fill="red" 
-                    size={18} 
-                    className="text-red-300 cursor-pointer" /> }    
-                </CardTitle>
-            </CardHeader>
-
-            <CardContent className="flex-col gap-4 flex-1">
-                <div>
-                    {job.cpmpany && <h3 className="font-medium">{job.company.name}</h3>}
-                </div>
-                <div>
-                    <MapPinIcon size={16}/> {job.location}
-                </div>
-                < hr/>
-                <div className="mt-2">
-                    {job.description.substring(0, job.description.indexOf("."))}
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Link to={`/jpb/${job.id}`} className="flex">
-                    <Button variant="secondary" className="w-full">
-                        View Details
-                    </Button>
-                </Link>
-                
-                {!isMyJob && (
-                <Button 
-                variant="w-15" 
-                onClick={handleSaveJob} 
-                disabled={loadingSaveJob}>
-                </Button>
-             )}
-
-             {!isMyJob && (
-                <Button 
-                variant="outline"
-                className="w-15" 
-                onClick={handleSavedJob} 
-                disabled={loadingSaveJob}>
-
-                {saved ? (
-                    <Bookmark size={20} stroke="red" fill="red" />
-                ) : (
-                    <Bookmark size={20} />
-                )}
-
-                </Button> 
+            {/* Delete button for user's own jobs */}
+            {isMyJob && (
+              <button className="text-slate-400 hover:text-red-400 transition-colors">
+                <Trash2 size={18} />
+              </button>
             )}
-            </CardFooter>
-            <link></
-            link>
+          </div>
 
-           
-    </Card>
+          {/* Location section with icon */}
+          <div className="flex items-center gap-2 mb-3 text-slate-300">
+            <MapPin size={16} className="text-purple-400" />
+            <span className="text-sm">{job.location}</span>
+          </div>
 
+          {/* Divider line for visual separation */}
+          <div className="h-px bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 mb-4"></div>
+
+          {/* Job description preview */}
+          <div className="flex-1 mb-4">
+            <p className="text-slate-300 text-sm leading-relaxed line-clamp-3">
+              {job.description.substring(0, job.description.indexOf(".") > 0 ? job.description.indexOf(".") + 1 : job.description.length)}
+            </p>
+          </div>
+
+          {/* Metadata badges: Job type, salary range, posted time */}
+          <div className="flex flex-wrap gap-2 mb-5">
+            {job.jobType && (
+              <div className="inline-flex items-center gap-1 px-3 py-1 bg-slate-700/50 border border-slate-600 rounded-full">
+                <Briefcase size={14} className="text-blue-400" />
+                <span className="text-xs text-slate-300">{job.jobType}</span>
+              </div>
+            )}
+            {job.salaryRange && (
+              <div className="inline-flex items-center gap-1 px-3 py-1 bg-slate-700/50 border border-slate-600 rounded-full">
+                <DollarSign size={14} className="text-emerald-400" />
+                <span className="text-xs text-slate-300">{job.salaryRange}</span>
+              </div>
+            )}
+            {job.postedDaysAgo && (
+              <div className="inline-flex items-center gap-1 px-3 py-1 bg-slate-700/50 border border-slate-600 rounded-full">
+                <Clock size={14} className="text-orange-400" />
+                <span className="text-xs text-slate-300">{job.postedDaysAgo}d ago</span>
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons section */}
+          <div className="flex gap-2">
+            {/* View Details Button - Routes to full job details page */}
+            <Link to={`/job/${job.id}`} className="flex-1">
+              <button className="w-full px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-lg transition-all duration-300 text-sm">
+                View Details
+              </button>
+            </Link>
+
+            {/* Apply Button - Submit application for job */}
+            <button className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-purple-500/50 text-slate-200 font-semibold rounded-lg transition-all duration-300 text-sm">
+              Apply
+            </button>
+
+            {/* Save Job Button - Bookmark job for later reference */}
+            {!isMyJob && (
+              <button 
+                onClick={handleToggleSave} 
+                disabled={loadingSaveJob}
+                className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-purple-500/50 text-slate-200 rounded-lg transition-all duration-300 disabled:opacity-50"
+              >
+                <Bookmark 
+                  size={18} 
+                  className={saved ? "fill-cyan-400 text-cyan-400" : "text-slate-400"}
+                />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
 }
 
 export default JobCard;

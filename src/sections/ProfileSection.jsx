@@ -1,27 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogOut, FileUp } from "lucide-react";
 import { UserAuth } from "@/context/AuthContext";
 import { supabase } from "@/supabaseClient";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
+// ProfileSection allows users to manage their profile, upload CV, and update contact information
 export default function ProfileSection() {
   const { session, signOut } = UserAuth();
   const navigate = useNavigate();
 
+  // State for profile form inputs
   const [mobile, setMobile] = useState("");
   const [cvFile, setCvFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch existing profile data
+  // Fetch existing profile data from Supabase
   useEffect(() => {
     const fetchProfile = async () => {
       if (!session?.user) return;
@@ -40,6 +35,7 @@ export default function ProfileSection() {
     fetchProfile();
   }, [session]);
 
+  // Save profile updates including CV upload
   const handleSave = async (e) => {
     e.preventDefault();
     if (!session?.user) return;
@@ -49,7 +45,7 @@ export default function ProfileSection() {
     try {
       let cv_url = null;
 
-      // Upload CV if file chosen
+      // Upload CV file if provided
       if (cvFile) {
         const filePath = `${session.user.id}/${cvFile.name}`;
         const { error: uploadError } = await supabase.storage
@@ -62,7 +58,7 @@ export default function ProfileSection() {
         cv_url = data.publicUrl;
       }
 
-      // Save profile data to table
+      // Update profile data in database
       const { error: dbError } = await supabase.from("profiles").upsert({
         id: session.user.id,
         mobile,
@@ -80,6 +76,7 @@ export default function ProfileSection() {
     }
   };
 
+  // Handle user logout
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -90,66 +87,81 @@ export default function ProfileSection() {
   };
 
   return (
-    <section className="min-h-screen bg-background">
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <Navbar />
 
-      <div className="pt-32 flex justify-center px-4">
-        <Card className="w-full max-w-lg shadow-xl rounded-2xl">
-          <CardHeader>
-            <h1 className="text-3xl font-bold text-center">My Profile</h1>
-          </CardHeader>
+      <div className="pt-24 flex justify-center px-4 pb-12">
+        <div className="w-full max-w-lg">
+          {/* Profile card */}
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700">
+            {/* Header */}
+            <h1 className="text-4xl font-black text-white text-center mb-8">
+              My<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400"> Profile</span>
+            </h1>
 
-          <CardContent className="space-y-6">
-            <div className="text-center">
-              <p className="text-xl font-medium">
-                Welcome,{" "}
-                <span className="text-primary font-semibold">
-                  {session?.user?.user_metadata?.fullname || "User"}
-                </span>
+            {/* User info display */}
+            <div className="text-center mb-8 pb-8 border-b border-slate-700">
+              <p className="text-2xl font-bold text-white">
+                {session?.user?.user_metadata?.fullname || "User"}
               </p>
-              <p className="text-muted-foreground mt-1">
-                {session?.user?.email}
-              </p>
+              <p className="text-slate-400 mt-2">{session?.user?.email}</p>
             </div>
 
-            <form className="space-y-4" onSubmit={handleSave}>
+            {/* Profile form */}
+            <form className="space-y-6" onSubmit={handleSave}>
+              {/* Mobile number input */}
               <div>
-                <Label htmlFor="mobile">Mobile Number</Label>
-                <Input
+                <label htmlFor="mobile" className="block text-sm font-semibold text-white mb-2">
+                  Mobile Number
+                </label>
+                <input
                   id="mobile"
                   type="text"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
                   placeholder="Enter your phone number"
+                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
+              {/* CV upload input */}
               <div>
-                <Label htmlFor="cv">Upload CV</Label>
-                <Input
-                  id="cv"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => setCvFile(e.target.files[0])}
-                />
+                <label htmlFor="cv" className="block text-sm font-semibold text-white mb-2">
+                  Upload CV
+                </label>
+                <div className="relative">
+                  <FileUp className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                  <input
+                    id="cv"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => setCvFile(e.target.files[0])}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors file:bg-emerald-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:cursor-pointer"
+                  />
+                </div>
+                {cvFile && <p className="text-sm text-emerald-400 mt-2">✓ {cvFile.name}</p>}
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full">
+              {/* Save button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
+              >
                 {loading ? "Saving..." : "Save Changes"}
-              </Button>
+              </button>
             </form>
-          </CardContent>
 
-          <CardFooter className="flex justify-center">
-            <Button
+            {/* Logout button */}
+            <button
               onClick={handleSignOut}
-              variant="destructive"
-              className="px-6"
+              className="w-full mt-6 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 border border-red-600/50"
             >
+              <LogOut size={18} />
               Logout
-            </Button>
-          </CardFooter>
-        </Card>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
