@@ -62,6 +62,7 @@ export default function SaveJobSection() {
                 key={job.id}
                 job={job}
                 savedInit={true}
+                appliedInit={job.applications?.some((application) => application.user_id === session?.user?.id)}
                 onJobSaved={() => fnGetSavedJobs(token, { user_id: session?.user?.id })}
               />
             ))}

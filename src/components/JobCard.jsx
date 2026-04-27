@@ -12,12 +12,13 @@ const JobCard = ({
     job,
     isMyJob = false,
     savedInit = false,
+  appliedInit = false,
     onJobSaved = () => {},
  }) => { 
     // State management for saved job status and application status
     const [ saved, setSaved ] = useState(savedInit);
     const [ showApplyModal, setShowApplyModal ] = useState(false);
-    const [ hasApplied, setHasApplied ] = useState(false);
+    const [ hasApplied, setHasApplied ] = useState(appliedInit);
     const { session } = UserAuth();
 
     // Custom hook for API calls to save/unsave jobs
@@ -41,6 +42,10 @@ const JobCard = ({
   useEffect(() => {
     setSaved(savedInit);
   }, [savedInit]);
+
+  useEffect(() => {
+    setHasApplied(appliedInit);
+  }, [appliedInit]);
 
     return (
       // Outer container with dark gradient background and modern styling
@@ -120,7 +125,9 @@ const JobCard = ({
 
             {/* Apply Button - Submit application for job */}
             <button 
-              onClick={() => setShowApplyModal(true)}
+              onClick={() => {
+                if (!hasApplied) setShowApplyModal(true);
+              }}
               disabled={hasApplied}
               className={`px-4 py-2.5 border rounded-lg transition-all duration-300 text-sm font-semibold ${
                 hasApplied 

@@ -8,13 +8,14 @@ export const AuthContextProvider = ({ children }) => {
     const [ loading, setLoading ] = useState(true);
 
     // Sign Up Function
-    const signUpNewUser = async (email, password, fullname) => {
+    const signUpNewUser = async (email, password, fullname, role = "candidate") => {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     fullname,
+                    role,
                 },
             },
         });
@@ -91,8 +92,10 @@ export const AuthContextProvider = ({ children }) => {
 
 
 
+    const userRole = session?.user?.user_metadata?.role ?? null;
+
     return (
-        <AuthContext.Provider value={{session, loading, signUpNewUser, signInUser, signOut}}>
+        <AuthContext.Provider value={{session, loading, userRole, signUpNewUser, signInUser, signOut}}>
             {children}
         </AuthContext.Provider>
     )

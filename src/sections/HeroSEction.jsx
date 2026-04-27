@@ -139,6 +139,7 @@ export default function HeroSection() {
                                         key={job.id} 
                                         job={job}
                                         savedInit={job.saved?.some((item) => item.user_id === session?.user?.id)}
+                                        appliedInit={job.applications?.some((application) => application.user_id === session?.user?.id)}
                                     />
                                 ))}
                             </div>
@@ -174,6 +175,7 @@ export default function HeroSection() {
                                     key={job.id} 
                                     job={job}
                                     savedInit={job.saved?.some((item) => item.user_id === session?.user?.id)}
+                                    appliedInit={job.applications?.some((application) => application.user_id === session?.user?.id)}
                                 />
                             ))}
                         </div>

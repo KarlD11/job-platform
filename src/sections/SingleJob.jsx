@@ -26,12 +26,12 @@ export default function SingleJob() {
     if (job_id && token) {
       fnJob(token, { job_id });
     }
-  }, [job_id, token]); // Removed fnJob from dependencies
+    // fnJob is intentionally omitted to avoid refetch loop from changing callback identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job_id, token]);
 
   // Check if user has already applied to this job
-  const hasApplied = job?.applications?.some(
-    (app) => app.candidate_id === session?.user?.id || app.user_id === session?.user?.id
-  );
+  const hasApplied = job?.applications?.some(app => app.user_id === session?.user?.id);
 
   // Show sign in prompt if user not authenticated
   if (!token) {

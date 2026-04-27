@@ -53,7 +53,7 @@ export default function LandingSection() {
                         </Link>
                         
                         <Link 
-                            to="/post-job" 
+                            to="/recruiter/signup" 
                             className="px-8 py-4 border-2 border-purple-400 text-purple-300 font-semibold rounded-lg hover:bg-purple-500/10 transition-all duration-300 hover:border-purple-300"
                         >
                             Post a Role
@@ -193,7 +193,7 @@ export default function LandingSection() {
                                 View Jobs
                             </Link>
                             <Link 
-                                to="/post-job" 
+                                to="/recruiter/signup" 
                                 className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300"
                             >
                                 Post a Role
