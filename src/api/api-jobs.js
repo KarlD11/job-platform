@@ -3,7 +3,7 @@ import { supabaseClient } from '@/utils/supabase';
 // Function to get jobs with optional filters
 export async function getJobs(token, { location, company_id, searchQuery, id, saved, recruiter_id }) {
   const supabase = await supabaseClient(token);
-  let query = supabase.from('jobs').select('*, company:companies(name), saved:saved_jobs(id)');
+  let query = supabase.from('jobs').select('*, company:companies(name), saved:saved_jobs(id, user_id)');
 
   if (id) query = query.eq('id', id);
   if (location) query = query.eq('location', location);

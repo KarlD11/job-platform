@@ -125,6 +125,7 @@ export default function JobSection() {
                 <JobCard 
                   key={job.id} 
                   job={job} 
+                  savedInit={job.saved?.some((item) => item.user_id === session?.user?.id)}
                   onJobSaved={() => fnJobs(token, { searchQuery, location, company_id: companyId })}
                 />
               ))

@@ -138,6 +138,7 @@ export default function HeroSection() {
                                     <JobCard 
                                         key={job.id} 
                                         job={job}
+                                        savedInit={job.saved?.some((item) => item.user_id === session?.user?.id)}
                                     />
                                 ))}
                             </div>
@@ -172,6 +173,7 @@ export default function HeroSection() {
                                 <JobCard 
                                     key={job.id} 
                                     job={job}
+                                    savedInit={job.saved?.some((item) => item.user_id === session?.user?.id)}
                                 />
                             ))}
                         </div>
