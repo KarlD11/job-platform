@@ -14,9 +14,10 @@ const JobCard = ({
     savedInit = false,
     onJobSaved = () => {},
  }) => { 
-    // State management for saved job status
+    // State management for saved job status and application status
     const [ saved, setSaved ] = useState(savedInit);
     const [ showApplyModal, setShowApplyModal ] = useState(false);
+    const [ hasApplied, setHasApplied ] = useState(false);
     const { session } = UserAuth();
 
     // Custom hook for API calls to save/unsave jobs
@@ -27,7 +28,7 @@ const JobCard = ({
 
   // Toggle save state for job bookmarking functionality
   const handleToggleSave = async () => {
-    await fnSavedJob({
+    await fnSavedJob(session?.access_token, {
       alreadySaved: saved,
       user_id: session.user.id,
       job_id: job.id,
@@ -120,9 +121,14 @@ const JobCard = ({
             {/* Apply Button - Submit application for job */}
             <button 
               onClick={() => setShowApplyModal(true)}
-              className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-purple-500/50 text-slate-200 font-semibold rounded-lg transition-all duration-300 text-sm"
+              disabled={hasApplied}
+              className={`px-4 py-2.5 border rounded-lg transition-all duration-300 text-sm font-semibold ${
+                hasApplied 
+                  ? 'bg-green-600/20 border-green-500/30 text-green-300 cursor-not-allowed' 
+                  : 'bg-slate-700 hover:bg-slate-600 border-slate-600 hover:border-purple-500/50 text-slate-200'
+              }`}
             >
-              Apply
+              {hasApplied ? 'Applied' : 'Apply'}
             </button>
 
             {/* Save Job Button - Bookmark job for later reference */}
@@ -144,9 +150,13 @@ const JobCard = ({
         {/* Apply Job Modal */}
         <ApplyJobModal
           user={session?.user}
+          token={session?.access_token}
           job={job}
-          fetchJob={onJobSaved}
-          applied={false}
+          fetchJob={() => {
+            setHasApplied(true);
+            onJobSaved();
+          }}
+          applied={hasApplied}
           isOpen={showApplyModal}
           onClose={() => setShowApplyModal(false)}
         />

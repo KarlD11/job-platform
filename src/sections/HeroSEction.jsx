@@ -17,8 +17,8 @@ export default function HeroSection() {
         fn: fnJobs,
         data: dataJobs,
         loading: loadingJobs,
-    } = useFetch(
-        (token, params) => getJobs(token, params),
+        } = useFetch(
+            (token, _, params) => getJobs(token, params),
         {
             searchQuery: jobQuery,
             location,

@@ -32,6 +32,7 @@ const router = createBrowserRouter([
       { path: "/job/:job_id", element: <PrivateRoute><SingleJob /></PrivateRoute> },
       { path: "/post-job", element: <PrivateRoute><PostJobSection /></PrivateRoute> },
       { path: "/saved-job", element: <PrivateRoute><SaveJobSection /></PrivateRoute> },
+      { path: "/applications", element: <PrivateRoute><ApplicationsSection /></PrivateRoute> },
       { path: "/my-jobs", element: <PrivateRoute><MyJobSection /></PrivateRoute> },
       { path: "/profile", element: <PrivateRoute><ProfileSection /></PrivateRoute> },
     ],

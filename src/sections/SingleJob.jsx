@@ -29,7 +29,9 @@ export default function SingleJob() {
   }, [job_id, token]); // Removed fnJob from dependencies
 
   // Check if user has already applied to this job
-  const hasApplied = job?.applications?.some(app => app.candidate_id === session?.user?.id);
+  const hasApplied = job?.applications?.some(
+    (app) => app.candidate_id === session?.user?.id || app.user_id === session?.user?.id
+  );
 
   // Show sign in prompt if user not authenticated
   if (!token) {
@@ -215,6 +217,7 @@ export default function SingleJob() {
       {/* Apply Job Modal */}
       <ApplyJobModal
         user={session?.user}
+        token={token}
         job={job}
         fetchJob={() => fnJob(token, { job_id })}
         applied={hasApplied}

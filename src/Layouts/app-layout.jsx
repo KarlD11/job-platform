@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar'; 
 import { Briefcase, Mail, Github, Linkedin } from 'lucide-react';
 
@@ -38,10 +38,10 @@ export default function AppLayout() {
                         <div>
                             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Platform</h4>
                             <ul className="space-y-3">
-                                <li><a href="/jobs" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Browse Jobs</a></li>
-                                <li><a href="/saved-job" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Saved Jobs</a></li>
-                                <li><a href="/applications" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Applications</a></li>
-                                <li><a href="/profile" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">My Profile</a></li>
+                                <li><Link to="/jobs" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Browse Jobs</Link></li>
+                                <li><Link to="/saved-job" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Saved Jobs</Link></li>
+                                <li><Link to="/applications" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Applications</Link></li>
+                                <li><Link to="/profile" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">My Profile</Link></li>
                             </ul>
                         </div>
 

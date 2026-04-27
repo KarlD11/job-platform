@@ -23,7 +23,7 @@ export default function JobSection() {
     data: dataJobs,
     loading: loadingJobs,
   } = useFetch(
-    (token, params) => getJobs(token, params),
+    (token, _, params) => getJobs(token, params),
     {
       searchQuery,
       location,
@@ -122,7 +122,11 @@ export default function JobSection() {
             ) : dataJobs?.length ? (
               // Display job cards when data is available
               dataJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard 
+                  key={job.id} 
+                  job={job} 
+                  onJobSaved={() => fnJobs(token, { searchQuery, location, company_id: companyId })}
+                />
               ))
             ) : (
               // Show empty state when no jobs found

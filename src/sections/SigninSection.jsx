@@ -13,7 +13,7 @@ export default function SignInSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { session, signInUser } = UserAuth();
+  const { signInUser } = UserAuth();
   const navigate = useNavigate();
 
   // Handle form submission and user authentication

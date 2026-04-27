@@ -17,7 +17,7 @@ export default function SaveJobSection() {
     fn: fnGetSavedJobs,
     data: savedJobs,
     loading: loadingSavedJobs,
-  } = useFetch((token, params) => getSavedJobs(token, params));
+  } = useFetch((token, _, params) => getSavedJobs(token, params));
 
   // Load saved jobs when component mounts or user changes
   useEffect(() => {

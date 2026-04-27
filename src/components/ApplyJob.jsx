@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "./ui/input";
@@ -7,7 +6,7 @@ import useFetch from "@/hooks/useFetch.jsx";
 import { applyToJob } from "@/api/api-applications";
 import { BarLoader } from "react-spinners";
 
-export function ApplyJobModal({ user, job, fetchJob, applied = false, isOpen, onClose }) {
+export function ApplyJobModal({ user, token, job, fetchJob, isOpen, onClose }) {
   const [formData, setFormData] = useState({
     firstName: user?.user_metadata?.full_name?.split(' ')[0] || '',
     lastName: user?.user_metadata?.full_name?.split(' ')[1] || '',
@@ -24,7 +23,20 @@ export function ApplyJobModal({ user, job, fetchJob, applied = false, isOpen, on
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'resume' && files) {
-      setFormData(prev => ({ ...prev, resume: files[0] }));
+      const file = files[0];
+      
+      // Validate file type - only allow PDF and Word documents
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const allowedExtensions = ['.pdf', '.doc', '.docx'];
+      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      
+      if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+        alert('Please upload only PDF or Word documents (.pdf, .doc, .docx)');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      setFormData(prev => ({ ...prev, resume: file }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -38,15 +50,43 @@ export function ApplyJobModal({ user, job, fetchJob, applied = false, isOpen, on
       return;
     }
 
+    // Double-check file type validation before submission
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const allowedExtensions = ['.pdf', '.doc', '.docx'];
+    const fileExtension = formData.resume.name.toLowerCase().substring(formData.resume.name.lastIndexOf('.'));
+    
+    if (!allowedTypes.includes(formData.resume.type) && !allowedExtensions.includes(fileExtension)) {
+      alert('Please upload only PDF or Word documents (.pdf, .doc, .docx)');
+      return;
+    }
+
     try {
-      await fnApply({
-        ...formData,
+      console.log('🚀 Starting application submission...');
+      console.log('📋 Form data:', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        resumeName: formData.resume?.name,
+        resumeSize: formData.resume?.size,
+        resumeType: formData.resume?.type
+      });
+
+      const result = await fnApply(token, {
         job_id: job.id,
-        candidate_id: user.id,
+        user_id: user.id,
         name: `${formData.firstName} ${formData.lastName}`,
-        status: "applied",
+        status: "pending",
         resume: formData.resume,
       });
+
+      if (!result) {
+        throw new Error('Application request completed without data.');
+      }
+
+      console.log('🎉 Application submission completed successfully!');
+      console.log('📄 Application result:', result);
+
+      alert('Application submitted successfully!');
 
       fetchJob();
       onClose();
@@ -57,7 +97,12 @@ export function ApplyJobModal({ user, job, fetchJob, applied = false, isOpen, on
         resume: null
       });
     } catch (error) {
-      console.error('Application submission failed:', error);
+      console.error('💥 Application submission failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+      alert(`Error submitting application: ${error.message}`);
     }
   };
 

@@ -47,6 +47,15 @@ export default function ProfileSection() {
 
       // Upload CV file if provided
       if (cvFile) {
+        // Double-check file type validation before upload
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+        const fileExtension = cvFile.name.toLowerCase().substring(cvFile.name.lastIndexOf('.'));
+        
+        if (!allowedTypes.includes(cvFile.type) && !allowedExtensions.includes(fileExtension)) {
+          throw new Error('Please upload only PDF or Word documents (.pdf, .doc, .docx)');
+        }
+
         const filePath = `${session.user.id}/${cvFile.name}`;
         const { error: uploadError } = await supabase.storage
           .from("cvs")
@@ -135,7 +144,23 @@ export default function ProfileSection() {
                     id="cv"
                     type="file"
                     accept=".pdf,.doc,.docx"
-                    onChange={(e) => setCvFile(e.target.files[0])}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        // Validate file type - only allow PDF and Word documents
+                        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+                        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                        
+                        if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                          alert('Please upload only PDF or Word documents (.pdf, .doc, .docx)');
+                          e.target.value = ''; // Clear the input
+                          setCvFile(null);
+                          return;
+                        }
+                      }
+                      setCvFile(file);
+                    }}
                     className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors file:bg-emerald-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:cursor-pointer"
                   />
                 </div>
